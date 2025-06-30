@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
-import { Plus, Settings, ChevronRight } from "lucide-react";
+import { Plus, Activity, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SettingsDialog from "@/components/SettingsDialog";
+import StatCard from "@/components/StatCard";
+import ReadingItem from "@/components/ReadingItem";
+import QuickStats from "@/components/QuickStats";
 import { showSuccess } from "@/utils/toast";
 
 interface Reading {
@@ -198,64 +201,37 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="max-w-6xl mx-auto px-6 pb-20">
+        {/* Quick Stats */}
+        <QuickStats readings={readings} targetINR={settings.targetINR} />
+
         {/* Current Readings Cards */}
         <div className="grid md:grid-cols-2 gap-8 mb-16">
           {/* INR Card */}
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white text-xl font-medium">INR</h3>
-              {latestINR && (
-                <span className={`text-sm font-medium px-3 py-1 rounded-full bg-white/10 ${getStatusColor(getINRStatus(latestINR.value!))}`}>
-                  {getINRStatusText(latestINR.value!)}
-                </span>
-              )}
-            </div>
-            
-            <div className="text-center">
-              {latestINR ? (
-                <>
-                  <div className="text-6xl font-light text-white mb-2">{latestINR.value}</div>
-                  <div className="text-white/60 text-sm mb-4">Target: {settings.targetINR}</div>
-                  <div className="text-white/50 text-sm">{formatDate(latestINR.date)} at {formatTime(latestINR.date)}</div>
-                </>
-              ) : (
-                <div className="py-12">
-                  <div className="text-white/40 text-lg mb-2">No readings yet</div>
-                  <div className="text-white/30 text-sm">Add your first INR reading</div>
-                </div>
-              )}
-            </div>
-          </div>
+          <StatCard
+            title="INR"
+            value={latestINR?.value || ""}
+            subtitle={`Target: ${settings.targetINR}`}
+            status={latestINR ? getINRStatusText(latestINR.value!) : undefined}
+            statusColor={latestINR ? getStatusColor(getINRStatus(latestINR.value!)) : undefined}
+            icon={<Activity className="w-5 h-5 text-blue-400" />}
+            isEmpty={!latestINR}
+            emptyTitle="No INR readings yet"
+            emptySubtitle="Add your first INR reading"
+          />
 
           {/* Blood Pressure Card */}
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white text-xl font-medium">Blood Pressure</h3>
-              {latestBP && (
-                <span className={`text-sm font-medium px-3 py-1 rounded-full bg-white/10 ${getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!))}`}>
-                  {getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "normal" ? "Normal" : 
-                   getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "warning" ? "Elevated" : "High"}
-                </span>
-              )}
-            </div>
-            
-            <div className="text-center">
-              {latestBP ? (
-                <>
-                  <div className="text-6xl font-light text-white mb-2">{latestBP.systolic}/{latestBP.diastolic}</div>
-                  <div className="text-white/60 text-sm mb-4">
-                    mmHg {latestBP.pulse && `• ♥ ${latestBP.pulse} bpm`}
-                  </div>
-                  <div className="text-white/50 text-sm">{formatDate(latestBP.date)} at {formatTime(latestBP.date)}</div>
-                </>
-              ) : (
-                <div className="py-12">
-                  <div className="text-white/40 text-lg mb-2">No readings yet</div>
-                  <div className="text-white/30 text-sm">Add your first BP reading</div>
-                </div>
-              )}
-            </div>
-          </div>
+          <StatCard
+            title="Blood Pressure"
+            value={latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : ""}
+            subtitle={latestBP ? `mmHg ${latestBP.pulse ? `• ♥ ${latestBP.pulse} bpm` : ""}` : undefined}
+            status={latestBP ? (getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "normal" ? "Normal" : 
+                     getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "warning" ? "Elevated" : "High") : undefined}
+            statusColor={latestBP ? getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!)) : undefined}
+            icon={<Heart className="w-5 h-5 text-red-400" />}
+            isEmpty={!latestBP}
+            emptyTitle="No BP readings yet"
+            emptySubtitle="Add your first blood pressure reading"
+          />
         </div>
 
         {/* Recent Readings */}
@@ -266,52 +242,19 @@ const Index = () => {
             </div>
             <div className="divide-y divide-white/10">
               {sortedReadings.slice(0, 8).map((reading) => (
-                <div key={reading.id} className="p-6 hover:bg-white/5 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      {reading.type === "inr" ? (
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                            <span className="text-blue-400 text-sm font-medium">INR</span>
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-3">
-                              <span className="text-white text-lg font-medium">{reading.value}</span>
-                              <span className={`text-sm ${getStatusColor(getINRStatus(reading.value!))}`}>
-                                {getINRStatusText(reading.value!)}
-                              </span>
-                            </div>
-                            <div className="text-white/50 text-sm">
-                              {formatDate(reading.date)} at {formatTime(reading.date)}
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
-                            <span className="text-red-400 text-sm font-medium">BP</span>
-                          </div>
-                          <div>
-                            <div className="flex items-center space-x-3">
-                              <span className="text-white text-lg font-medium">{reading.systolic}/{reading.diastolic}</span>
-                              <span className={`text-sm ${getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}`}>
-                                {getBPStatus(reading.systolic!, reading.diastolic!) === "normal" ? "Normal" : 
-                                 getBPStatus(reading.systolic!, reading.diastolic!) === "warning" ? "Elevated" : "High"}
-                              </span>
-                              {reading.pulse && (
-                                <span className="text-white/50 text-sm">♥ {reading.pulse}</span>
-                              )}
-                            </div>
-                            <div className="text-white/50 text-sm">
-                              {formatDate(reading.date)} at {formatTime(reading.date)}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-white/30" />
-                  </div>
-                </div>
+                <ReadingItem
+                  key={reading.id}
+                  type={reading.type}
+                  value={reading.type === "inr" ? reading.value!.toString() : `${reading.systolic}/${reading.diastolic}`}
+                  status={reading.type === "inr" ? getINRStatusText(reading.value!) : 
+                          (getBPStatus(reading.systolic!, reading.diastolic!) === "normal" ? "Normal" : 
+                           getBPStatus(reading.systolic!, reading.diastolic!) === "warning" ? "Elevated" : "High")}
+                  statusColor={reading.type === "inr" ? getStatusColor(getINRStatus(reading.value!)) : 
+                              getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
+                  date={formatDate(reading.date)}
+                  time={formatTime(reading.date)}
+                  pulse={reading.pulse}
+                />
               ))}
             </div>
           </div>
