@@ -281,13 +281,7 @@ const Index = () => {
       {/* Header */}
       <div className="pt-12 pb-8">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                <span className="text-white text-sm">📊</span>
-              </div>
-              <span className="text-white/80 text-sm font-medium">Health Tracker</span>
-            </div>
+          <div className="flex items-center justify-end mb-8">
             <div className="flex items-center space-x-3">
               <ExportDialog readings={readings} settings={settings} />
               <SettingsDialog 
@@ -298,7 +292,7 @@ const Index = () => {
           </div>
 
           <div className="text-center mb-12">
-            <h1 className="text-5xl font-light text-white mb-4">Health</h1>
+            <h1 className="text-5xl font-light text-white mb-4">Focus Health</h1>
             <p className="text-white/70 text-lg max-w-2xl mx-auto">
               Track your INR and blood pressure readings. Monitor your health with precision and stay on target.
             </p>
