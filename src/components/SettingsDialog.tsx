@@ -43,21 +43,21 @@ const SettingsDialog = ({ targetINR, onTargetINRChange }: SettingsDialogProps) =
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-blue-500 dark:text-blue-400">
+        <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10">
           <Settings className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
         <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">Settings</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-white">Settings</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
           {/* Theme Selection */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Theme</Label>
+            <Label className="text-sm font-medium text-white">Theme</Label>
             <Select value={theme} onValueChange={setTheme}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-slate-700 border-slate-600 text-white">
                 <SelectValue>
                   <div className="flex items-center space-x-2">
                     {getThemeIcon()}
@@ -65,20 +65,20 @@ const SettingsDialog = ({ targetINR, onTargetINRChange }: SettingsDialogProps) =
                   </div>
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="light">
+              <SelectContent className="bg-slate-700 border-slate-600">
+                <SelectItem value="light" className="text-white hover:bg-slate-600">
                   <div className="flex items-center space-x-2">
                     <Sun className="w-4 h-4" />
                     <span>Light</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="dark">
+                <SelectItem value="dark" className="text-white hover:bg-slate-600">
                   <div className="flex items-center space-x-2">
                     <Moon className="w-4 h-4" />
                     <span>Dark</span>
                   </div>
                 </SelectItem>
-                <SelectItem value="system">
+                <SelectItem value="system" className="text-white hover:bg-slate-600">
                   <div className="flex items-center space-x-2">
                     <Monitor className="w-4 h-4" />
                     <span>System</span>
@@ -90,7 +90,7 @@ const SettingsDialog = ({ targetINR, onTargetINRChange }: SettingsDialogProps) =
 
           {/* INR Target */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Target INR</Label>
+            <Label className="text-sm font-medium text-white">Target INR</Label>
             <div className="space-y-2">
               <Input
                 id="targetINR"
@@ -100,16 +100,16 @@ const SettingsDialog = ({ targetINR, onTargetINRChange }: SettingsDialogProps) =
                 max="5.0"
                 value={inrTarget}
                 onChange={(e) => setInrTarget(e.target.value)}
-                className="text-base"
+                className="text-base bg-slate-700 border-slate-600 text-white"
                 placeholder="2.5"
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-slate-400">
                 Your prescribed target INR value (e.g., 2.5, 3.0)
               </p>
             </div>
           </div>
 
-          <Button onClick={handleSave} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white">
+          <Button onClick={handleSave} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
             Save Settings
           </Button>
         </div>

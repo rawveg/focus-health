@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, ChevronRight } from "lucide-react";
+import { Plus, Settings, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -106,10 +106,9 @@ const Index = () => {
     const { targetINR } = settings;
     const difference = Math.abs(value - targetINR);
     
-    // Very tight tolerances based on your experience
-    if (difference <= 0.2) return "normal";      // Within ±0.2 of target
-    if (difference <= 0.4) return "warning";     // Within ±0.4 of target  
-    return "critical";                           // More than ±0.4 from target
+    if (difference <= 0.2) return "normal";
+    if (difference <= 0.4) return "warning";
+    return "critical";
   };
 
   const getBPStatus = (systolic: number, diastolic: number) => {
@@ -120,10 +119,10 @@ const Index = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "normal": return "text-green-600 dark:text-green-400";
-      case "warning": return "text-orange-500 dark:text-orange-400";
-      case "critical": return "text-red-500 dark:text-red-400";
-      default: return "text-gray-500 dark:text-gray-400";
+      case "normal": return "text-green-400";
+      case "warning": return "text-yellow-400";
+      case "critical": return "text-red-400";
+      default: return "text-gray-400";
     }
   };
 
@@ -131,8 +130,7 @@ const Index = () => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
       month: "short",
-      day: "numeric",
-      year: "numeric"
+      day: "numeric"
     });
   };
 
@@ -163,227 +161,239 @@ const Index = () => {
   const sortedReadings = [...readings].sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {/* Navigation Bar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
-        <div className="max-w-sm mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold text-black dark:text-white">Health</h1>
-            <div className="flex items-center space-x-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      {/* Header */}
+      <div className="pt-12 pb-8">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                <span className="text-white text-sm">📊</span>
+              </div>
+              <span className="text-white/80 text-sm font-medium">Health Tracker</span>
+            </div>
+            <div className="flex items-center space-x-3">
               <SettingsDialog 
                 targetINR={settings.targetINR}
                 onTargetINRChange={handleTargetINRChange}
               />
-              <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="sm" className="text-blue-500 dark:text-blue-400 font-medium">
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-lg font-semibold">Add Reading</DialogTitle>
-                  </DialogHeader>
-                  <Tabs defaultValue="inr" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 bg-gray-100 dark:bg-gray-800">
-                      <TabsTrigger value="inr" className="text-sm">INR</TabsTrigger>
-                      <TabsTrigger value="bp" className="text-sm">Blood Pressure</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="inr" className="space-y-4 mt-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="inr" className="text-sm font-medium">INR Value</Label>
-                        <Input
-                          id="inr"
-                          type="number"
-                          step="0.1"
-                          placeholder="2.5"
-                          value={inrValue}
-                          onChange={(e) => setInrValue(e.target.value)}
-                          className="text-base"
-                        />
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Target: {settings.targetINR}
-                        </p>
-                      </div>
-                      <Button onClick={addINRReading} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white">
-                        Add INR Reading
-                      </Button>
-                    </TabsContent>
-                    
-                    <TabsContent value="bp" className="space-y-4 mt-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="systolic" className="text-sm font-medium">Systolic</Label>
-                          <Input
-                            id="systolic"
-                            type="number"
-                            placeholder="120"
-                            value={systolic}
-                            onChange={(e) => setSystolic(e.target.value)}
-                            className="text-base"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="diastolic" className="text-sm font-medium">Diastolic</Label>
-                          <Input
-                            id="diastolic"
-                            type="number"
-                            placeholder="80"
-                            value={diastolic}
-                            onChange={(e) => setDiastolic(e.target.value)}
-                            className="text-base"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="pulse" className="text-sm font-medium">Pulse (optional)</Label>
-                        <Input
-                          id="pulse"
-                          type="number"
-                          placeholder="72"
-                          value={pulse}
-                          onChange={(e) => setPulse(e.target.value)}
-                          className="text-base"
-                        />
-                      </div>
-                      <Button onClick={addBPReading} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white">
-                        Add Blood Pressure Reading
-                      </Button>
-                    </TabsContent>
-                  </Tabs>
-                </DialogContent>
-              </Dialog>
+              <Button 
+                onClick={() => setShowAddDialog(true)}
+                className="bg-white/10 hover:bg-white/20 text-white border-0 backdrop-blur-sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Reading
+              </Button>
             </div>
+          </div>
+
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-light text-white mb-4">Health</h1>
+            <p className="text-white/70 text-lg max-w-2xl mx-auto">
+              Track your INR and blood pressure readings. Monitor your health with precision and stay on target.
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="max-w-sm mx-auto">
-        {/* Summary Section */}
-        <div className="bg-white dark:bg-gray-800 mt-4 mx-4 rounded-xl overflow-hidden shadow-sm transition-colors">
-          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-            <h2 className="text-base font-semibold text-black dark:text-white">Summary</h2>
-          </div>
-          
-          {/* INR Summary */}
-          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-base font-medium text-black dark:text-white">INR</span>
-                  {latestINR && (
-                    <span className={`text-sm font-medium ${getStatusColor(getINRStatus(latestINR.value!))}`}>
-                      {getINRStatusText(latestINR.value!)}
-                    </span>
-                  )}
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-6 pb-20">
+        {/* Current Readings Cards */}
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
+          {/* INR Card */}
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white text-xl font-medium">INR</h3>
+              {latestINR && (
+                <span className={`text-sm font-medium px-3 py-1 rounded-full bg-white/10 ${getStatusColor(getINRStatus(latestINR.value!))}`}>
+                  {getINRStatusText(latestINR.value!)}
+                </span>
+              )}
+            </div>
+            
+            <div className="text-center">
+              {latestINR ? (
+                <>
+                  <div className="text-6xl font-light text-white mb-2">{latestINR.value}</div>
+                  <div className="text-white/60 text-sm mb-4">Target: {settings.targetINR}</div>
+                  <div className="text-white/50 text-sm">{formatDate(latestINR.date)} at {formatTime(latestINR.date)}</div>
+                </>
+              ) : (
+                <div className="py-12">
+                  <div className="text-white/40 text-lg mb-2">No readings yet</div>
+                  <div className="text-white/30 text-sm">Add your first INR reading</div>
                 </div>
-                <div className="mt-1">
-                  {latestINR ? (
-                    <>
-                      <span className="text-2xl font-light text-black dark:text-white">{latestINR.value}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                        (Target: {settings.targetINR})
-                      </span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{formatDate(latestINR.date)}</p>
-                    </>
-                  ) : (
-                    <span className="text-base text-gray-400 dark:text-gray-500">No data</span>
-                  )}
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              )}
             </div>
           </div>
 
-          {/* Blood Pressure Summary */}
-          <div className="px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2">
-                  <span className="text-base font-medium text-black dark:text-white">Blood Pressure</span>
-                  {latestBP && (
-                    <span className={`text-sm font-medium ${getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!))}`}>
-                      {getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "normal" ? "Normal" : 
-                       getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "warning" ? "Elevated" : "High"}
-                    </span>
-                  )}
+          {/* Blood Pressure Card */}
+          <div className="bg-slate-800/50 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white text-xl font-medium">Blood Pressure</h3>
+              {latestBP && (
+                <span className={`text-sm font-medium px-3 py-1 rounded-full bg-white/10 ${getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!))}`}>
+                  {getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "normal" ? "Normal" : 
+                   getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "warning" ? "Elevated" : "High"}
+                </span>
+              )}
+            </div>
+            
+            <div className="text-center">
+              {latestBP ? (
+                <>
+                  <div className="text-6xl font-light text-white mb-2">{latestBP.systolic}/{latestBP.diastolic}</div>
+                  <div className="text-white/60 text-sm mb-4">
+                    mmHg {latestBP.pulse && `• ♥ ${latestBP.pulse} bpm`}
+                  </div>
+                  <div className="text-white/50 text-sm">{formatDate(latestBP.date)} at {formatTime(latestBP.date)}</div>
+                </>
+              ) : (
+                <div className="py-12">
+                  <div className="text-white/40 text-lg mb-2">No readings yet</div>
+                  <div className="text-white/30 text-sm">Add your first BP reading</div>
                 </div>
-                <div className="mt-1">
-                  {latestBP ? (
-                    <>
-                      <span className="text-2xl font-light text-black dark:text-white">{latestBP.systolic}/{latestBP.diastolic}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">mmHg</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{formatDate(latestBP.date)}</p>
-                    </>
-                  ) : (
-                    <span className="text-base text-gray-400 dark:text-gray-500">No data</span>
-                  )}
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              )}
             </div>
           </div>
         </div>
 
         {/* Recent Readings */}
-        <div className="bg-white dark:bg-gray-800 mt-4 mx-4 rounded-xl overflow-hidden shadow-sm transition-colors">
-          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-            <h2 className="text-base font-semibold text-black dark:text-white">Recent</h2>
-          </div>
-          
-          {sortedReadings.length === 0 ? (
-            <div className="px-4 py-8 text-center">
-              <p className="text-gray-400 dark:text-gray-500">No readings yet</p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">Tap Add to get started</p>
+        {sortedReadings.length > 0 && (
+          <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <h3 className="text-white text-xl font-medium">Recent Readings</h3>
             </div>
-          ) : (
-            <div>
-              {sortedReadings.slice(0, 10).map((reading, index) => (
-                <div key={reading.id} className={`px-4 py-3 ${index < sortedReadings.slice(0, 10).length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}>
+            <div className="divide-y divide-white/10">
+              {sortedReadings.slice(0, 8).map((reading) => (
+                <div key={reading.id} className="p-6 hover:bg-white/5 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       {reading.type === "inr" ? (
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-base font-medium text-black dark:text-white">INR</span>
-                            <span className={`text-base font-medium ${getStatusColor(getINRStatus(reading.value!))}`}>
-                              {reading.value}
-                            </span>
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                            <span className="text-blue-400 text-sm font-medium">INR</span>
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {formatDate(reading.date)} at {formatTime(reading.date)}
-                          </p>
+                          <div>
+                            <div className="flex items-center space-x-3">
+                              <span className="text-white text-lg font-medium">{reading.value}</span>
+                              <span className={`text-sm ${getStatusColor(getINRStatus(reading.value!))}`}>
+                                {getINRStatusText(reading.value!)}
+                              </span>
+                            </div>
+                            <div className="text-white/50 text-sm">
+                              {formatDate(reading.date)} at {formatTime(reading.date)}
+                            </div>
+                          </div>
                         </div>
                       ) : (
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-base font-medium text-black dark:text-white">Blood Pressure</span>
-                            <span className={`text-base font-medium ${getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}`}>
-                              {reading.systolic}/{reading.diastolic}
-                            </span>
-                            {reading.pulse && (
-                              <span className="text-sm text-gray-500 dark:text-gray-400">♥ {reading.pulse}</span>
-                            )}
+                        <div className="flex items-center space-x-4">
+                          <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center">
+                            <span className="text-red-400 text-sm font-medium">BP</span>
                           </div>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            {formatDate(reading.date)} at {formatTime(reading.date)}
-                          </p>
+                          <div>
+                            <div className="flex items-center space-x-3">
+                              <span className="text-white text-lg font-medium">{reading.systolic}/{reading.diastolic}</span>
+                              <span className={`text-sm ${getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}`}>
+                                {getBPStatus(reading.systolic!, reading.diastolic!) === "normal" ? "Normal" : 
+                                 getBPStatus(reading.systolic!, reading.diastolic!) === "warning" ? "Elevated" : "High"}
+                              </span>
+                              {reading.pulse && (
+                                <span className="text-white/50 text-sm">♥ {reading.pulse}</span>
+                              )}
+                            </div>
+                            <div className="text-white/50 text-sm">
+                              {formatDate(reading.date)} at {formatTime(reading.date)}
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <ChevronRight className="w-5 h-5 text-white/30" />
                   </div>
                 </div>
               ))}
             </div>
-          )}
-        </div>
-
-        {/* Bottom spacing for safe area */}
-        <div className="h-8"></div>
+          </div>
+        )}
       </div>
+
+      {/* Add Reading Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white text-lg font-semibold">Add Reading</DialogTitle>
+          </DialogHeader>
+          <Tabs defaultValue="inr" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-700">
+              <TabsTrigger value="inr" className="text-sm data-[state=active]:bg-slate-600 data-[state=active]:text-white">INR</TabsTrigger>
+              <TabsTrigger value="bp" className="text-sm data-[state=active]:bg-slate-600 data-[state=active]:text-white">Blood Pressure</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="inr" className="space-y-4 mt-6">
+              <div className="space-y-2">
+                <Label htmlFor="inr" className="text-sm font-medium text-white">INR Value</Label>
+                <Input
+                  id="inr"
+                  type="number"
+                  step="0.1"
+                  placeholder="2.5"
+                  value={inrValue}
+                  onChange={(e) => setInrValue(e.target.value)}
+                  className="text-base bg-slate-700 border-slate-600 text-white"
+                />
+                <p className="text-xs text-slate-400">
+                  Target: {settings.targetINR}
+                </p>
+              </div>
+              <Button onClick={addINRReading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                Add INR Reading
+              </Button>
+            </TabsContent>
+            
+            <TabsContent value="bp" className="space-y-4 mt-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="systolic" className="text-sm font-medium text-white">Systolic</Label>
+                  <Input
+                    id="systolic"
+                    type="number"
+                    placeholder="120"
+                    value={systolic}
+                    onChange={(e) => setSystolic(e.target.value)}
+                    className="text-base bg-slate-700 border-slate-600 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="diastolic" className="text-sm font-medium text-white">Diastolic</Label>
+                  <Input
+                    id="diastolic"
+                    type="number"
+                    placeholder="80"
+                    value={diastolic}
+                    onChange={(e) => setDiastolic(e.target.value)}
+                    className="text-base bg-slate-700 border-slate-600 text-white"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pulse" className="text-sm font-medium text-white">Pulse (optional)</Label>
+                <Input
+                  id="pulse"
+                  type="number"
+                  placeholder="72"
+                  value={pulse}
+                  onChange={(e) => setPulse(e.target.value)}
+                  className="text-base bg-slate-700 border-slate-600 text-white"
+                />
+              </div>
+              <Button onClick={addBPReading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                Add Blood Pressure Reading
+              </Button>
+            </TabsContent>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
