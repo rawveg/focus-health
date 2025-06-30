@@ -324,24 +324,18 @@ const Index = () => {
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
-                  <Tooltip key={tab.id}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${
-                          activeTab === tab.id
-                            ? "bg-white text-slate-900 shadow-lg"
-                            : "text-white/70 hover:text-white hover:bg-white/10"
-                        }`}
-                      >
-                        <Icon className="w-4 h-4" />
-                        <span className="text-sm font-medium">{tab.label}</span>
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Switch to {tab.label} tab</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${
+                      activeTab === tab.id
+                        ? "bg-white text-slate-900 shadow-lg"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-sm font-medium">{tab.label}</span>
+                  </button>
                 );
               })}
             </div>
