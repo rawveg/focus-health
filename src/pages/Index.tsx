@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Activity, Heart, BarChart3, List } from "lucide-react";
+import { Plus, Activity, Heart, BarChart3, List, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -277,13 +277,21 @@ const Index = () => {
   const bpAnalytics = getBPAnalytics();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex flex-col">
       {/* Header */}
       <div className="pt-12 pb-8">
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex items-center justify-end mb-8">
             <div className="flex items-center space-x-3">
               <ExportDialog readings={readings} settings={settings} />
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-white/80 hover:text-white hover:bg-white/10"
+                onClick={() => window.open('https://github.com/rawveg/focus-health', '_blank')}
+              >
+                <Github className="w-4 h-4" />
+              </Button>
               <SettingsDialog 
                 targetINR={settings.targetINR}
                 onTargetINRChange={handleTargetINRChange}
@@ -326,7 +334,7 @@ const Index = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="max-w-6xl mx-auto px-6 pb-20">
+      <div className="max-w-6xl mx-auto px-6 pb-20 flex-1">
         {/* INR Tab */}
         {activeTab === "inr" && (
           <div className="space-y-8">
@@ -648,6 +656,34 @@ const Index = () => {
           </div>
         )}
       </div>
+
+      {/* Footer */}
+      <footer className="bg-slate-900/50 backdrop-blur-sm border-t border-white/10 py-8 mt-auto">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="text-white/60 text-sm mb-2">
+            <a 
+              href="https://www.gnu.org/licenses/agpl-3.0.en.html" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-white/80 transition-colors"
+            >
+              Licensed under the GNU Affero General Public License v3.0
+            </a>
+            <span className="mx-2">•</span>
+            <a 
+              href="https://github.com/rawveg/focus-health/blob/main/LICENSE" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-white/80 transition-colors"
+            >
+              View License
+            </a>
+          </div>
+          <div className="text-white/40 text-sm">
+            © 2025 Tim Green. All rights reserved.
+          </div>
+        </div>
+      </footer>
 
       {/* Reading Detail Dialog */}
       <ReadingDetailDialog
