@@ -58,11 +58,11 @@ const ReadingDetailDialog = ({
       status: value > settings.targetINR ? "High" : "Low", 
       color: "text-yellow-400" 
     };
-    return { status: "Critical", color: "text-red-400" };
+    return { status: "Contact Clinic", color: "text-orange-400" };
   };
 
   const getBPStatus = (systolic: number, diastolic: number) => {
-    if (systolic >= 140 || diastolic >= 90) return { status: "High", color: "text-red-400" };
+    if (systolic >= 140 || diastolic >= 90) return { status: "Contact Doctor", color: "text-orange-400" };
     if (systolic >= 130 || diastolic >= 80) return { status: "Elevated", color: "text-yellow-400" };
     return { status: "Normal", color: "text-green-400" };
   };

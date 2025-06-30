@@ -140,11 +140,11 @@ const Index = () => {
     
     if (difference <= 0.2) return "normal";
     if (difference <= 0.4) return "warning";
-    return "critical";
+    return "contact";
   };
 
   const getBPStatus = (systolic: number, diastolic: number) => {
-    if (systolic >= 140 || diastolic >= 90) return "critical";
+    if (systolic >= 140 || diastolic >= 90) return "contact";
     if (systolic >= 130 || diastolic >= 80) return "warning";
     return "normal";
   };
@@ -153,7 +153,7 @@ const Index = () => {
     switch (status) {
       case "normal": return "text-green-400";
       case "warning": return "text-yellow-400";
-      case "critical": return "text-red-400";
+      case "contact": return "text-orange-400";
       default: return "text-gray-400";
     }
   };
@@ -184,8 +184,17 @@ const Index = () => {
     const difference = value - targetINR;
     
     if (status === "normal") return "On Target";
+    if (status === "contact") return "Contact Clinic";
     if (difference > 0) return "High";
     return "Low";
+  };
+
+  const getBPStatusText = (systolic: number, diastolic: number) => {
+    const status = getBPStatus(systolic, diastolic);
+    
+    if (status === "normal") return "Normal";
+    if (status === "contact") return "Contact Doctor";
+    return "Elevated";
   };
 
   const handleReadingClick = (reading: Reading) => {
@@ -407,8 +416,7 @@ const Index = () => {
               title="Current Blood Pressure"
               value={latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : ""}
               subtitle={latestBP ? `mmHg • Recorded ${formatDate(latestBP.date)} at ${formatTime(latestBP.date)}${latestBP.pulse ? ` • ♥ ${latestBP.pulse} bpm` : ""}` : undefined}
-              status={latestBP ? (getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "normal" ? "Normal" : 
-                       getBPStatus(latestBP.systolic!, latestBP.diastolic!) === "warning" ? "Elevated" : "High") : undefined}
+              status={latestBP ? getBPStatusText(latestBP.systolic!, latestBP.diastolic!) : undefined}
               statusColor={latestBP ? getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!)) : undefined}
               icon={<Heart className="w-5 h-5 text-red-400" />}
               isEmpty={!latestBP}
@@ -484,8 +492,7 @@ const Index = () => {
                       key={reading.id}
                       type={reading.type}
                       value={`${reading.systolic}/${reading.diastolic}`}
-                      status={getBPStatus(reading.systolic!, reading.diastolic!) === "normal" ? "Normal" : 
-                              getBPStatus(reading.systolic!, reading.diastolic!) === "warning" ? "Elevated" : "High"}
+                      status={getBPStatusText(reading.systolic!, reading.diastolic!)}
                       statusColor={getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
                       date={formatDate(reading.date)}
                       time={formatTime(reading.date)}
@@ -566,9 +573,9 @@ const Index = () => {
                         <div className="text-lg font-bold text-yellow-400">{bpAnalytics.elevated}</div>
                         <div className="text-xs text-white/60">Elevated</div>
                       </div>
-                      <div className="bg-red-500/20 rounded-xl p-3 text-center">
-                        <div className="text-lg font-bold text-red-400">{bpAnalytics.high}</div>
-                        <div className="text-xs text-white/60">High</div>
+                      <div className="bg-orange-500/20 rounded-xl p-3 text-center">
+                        <div className="text-lg font-bold text-orange-400">{bpAnalytics.high}</div>
+                        <div className="text-xs text-white/60">Contact Doctor</div>
                       </div>
                     </div>
 
@@ -613,9 +620,7 @@ const Index = () => {
                       key={reading.id}
                       type={reading.type}
                       value={reading.type === "inr" ? reading.value!.toString() : `${reading.systolic}/${reading.diastolic}`}
-                      status={reading.type === "inr" ? getINRStatusText(reading.value!) : 
-                              (getBPStatus(reading.systolic!, reading.diastolic!) === "normal" ? "Normal" : 
-                               getBPStatus(reading.systolic!, reading.diastolic!) === "warning" ? "Elevated" : "High")}
+                      status={reading.type === "inr" ? getINRStatusText(reading.value!) : getBPStatusText(reading.systolic!, reading.diastolic!)}
                       statusColor={reading.type === "inr" ? getStatusColor(getINRStatus(reading.value!)) : 
                                   getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
                       date={formatDate(reading.date)}

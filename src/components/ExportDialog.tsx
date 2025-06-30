@@ -39,11 +39,11 @@ const ExportDialog = ({ readings, settings }: ExportDialogProps) => {
     const difference = Math.abs(value - settings.targetINR);
     if (difference <= 0.2) return "On Target";
     if (difference <= 0.4) return value > settings.targetINR ? "High" : "Low";
-    return "Critical";
+    return "Contact Clinic";
   };
 
   const getBPStatus = (systolic: number, diastolic: number) => {
-    if (systolic >= 140 || diastolic >= 90) return "High";
+    if (systolic >= 140 || diastolic >= 90) return "Contact Doctor";
     if (systolic >= 130 || diastolic >= 80) return "Elevated";
     return "Normal";
   };
