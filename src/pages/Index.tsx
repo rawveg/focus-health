@@ -9,6 +9,9 @@ import SettingsDialog from "@/components/SettingsDialog";
 import StatCard from "@/components/StatCard";
 import ReadingItem from "@/components/ReadingItem";
 import QuickStats from "@/components/QuickStats";
+import ExportDialog from "@/components/ExportDialog";
+import AnalyticsDialog from "@/components/AnalyticsDialog";
+import ReadingDetailDialog from "@/components/ReadingDetailDialog";
 import { showSuccess } from "@/utils/toast";
 
 interface Reading {
@@ -30,6 +33,8 @@ const Index = () => {
   const [readings, setReadings] = useState<Reading[]>([]);
   const [settings, setSettings] = useState<Settings>({ targetINR: 2.5 });
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [selectedReading, setSelectedReading] = useState<Reading | null>(null);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [inrValue, setInrValue] = useState("");
   const [systolic, setSystolic] = useState("");
   const [diastolic, setDiastolic] = useState("");
@@ -93,6 +98,14 @@ const Index = () => {
     setPulse("");
     setShowAddDialog(false);
     showSuccess("Blood pressure reading added");
+  };
+
+  const updateReading = (updatedReading: Reading) => {
+    setReadings(prev => prev.map(r => r.id === updatedReading.id ? updatedReading : r));
+  };
+
+  const deleteReading = (readingId: string) => {
+    setReadings(prev => prev.filter(r => r.id !== readingId));
   };
 
   const getLatestINR = () => {
@@ -159,6 +172,11 @@ const Index = () => {
     return "Low";
   };
 
+  const handleReadingClick = (reading: Reading) => {
+    setSelectedReading(reading);
+    setShowDetailDialog(true);
+  };
+
   const latestINR = getLatestINR();
   const latestBP = getLatestBP();
   const sortedReadings = [...readings].sort((a, b) => b.timestamp - a.timestamp);
@@ -176,6 +194,8 @@ const Index = () => {
               <span className="text-white/80 text-sm font-medium">Health Tracker</span>
             </div>
             <div className="flex items-center space-x-3">
+              <ExportDialog readings={readings} settings={settings} />
+              <AnalyticsDialog readings={readings} settings={settings} />
               <SettingsDialog 
                 targetINR={settings.targetINR}
                 onTargetINRChange={handleTargetINRChange}
@@ -254,6 +274,7 @@ const Index = () => {
                   date={formatDate(reading.date)}
                   time={formatTime(reading.date)}
                   pulse={reading.pulse}
+                  onClick={() => handleReadingClick(reading)}
                 />
               ))}
             </div>
@@ -337,6 +358,19 @@ const Index = () => {
           </Tabs>
         </DialogContent>
       </Dialog>
+
+      {/* Reading Detail Dialog */}
+      <ReadingDetailDialog
+        reading={selectedReading}
+        open={showDetailDialog}
+        onClose={() => {
+          setShowDetailDialog(false);
+          setSelectedReading(null);
+        }}
+        onUpdate={updateReading}
+        onDelete={deleteReading}
+        settings={settings}
+      />
     </div>
   );
 };
