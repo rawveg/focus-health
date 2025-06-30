@@ -9,28 +9,24 @@ import { useTheme } from "./ThemeProvider";
 import { showSuccess } from "@/utils/toast";
 
 interface SettingsDialogProps {
-  targetINRMin: number;
-  targetINRMax: number;
-  onTargetINRChange: (min: number, max: number) => void;
+  targetINR: number;
+  onTargetINRChange: (target: number) => void;
 }
 
-const SettingsDialog = ({ targetINRMin, targetINRMax, onTargetINRChange }: SettingsDialogProps) => {
+const SettingsDialog = ({ targetINR, onTargetINRChange }: SettingsDialogProps) => {
   const [open, setOpen] = useState(false);
-  const [minINR, setMinINR] = useState(targetINRMin.toString());
-  const [maxINR, setMaxINR] = useState(targetINRMax.toString());
+  const [inrTarget, setInrTarget] = useState(targetINR.toString());
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    setMinINR(targetINRMin.toString());
-    setMaxINR(targetINRMax.toString());
-  }, [targetINRMin, targetINRMax]);
+    setInrTarget(targetINR.toString());
+  }, [targetINR]);
 
   const handleSave = () => {
-    const min = parseFloat(minINR);
-    const max = parseFloat(maxINR);
+    const target = parseFloat(inrTarget);
     
-    if (min && max && min < max && min > 0 && max < 10) {
-      onTargetINRChange(min, max);
+    if (target && target > 0 && target < 10) {
+      onTargetINRChange(target);
       setOpen(false);
       showSuccess("Settings saved");
     }
@@ -92,40 +88,25 @@ const SettingsDialog = ({ targetINRMin, targetINRMax, onTargetINRChange }: Setti
             </Select>
           </div>
 
-          {/* INR Target Range */}
+          {/* INR Target */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Target INR Range</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="minINR" className="text-xs text-gray-500 dark:text-gray-400">Minimum</Label>
-                <Input
-                  id="minINR"
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  max="5.0"
-                  value={minINR}
-                  onChange={(e) => setMinINR(e.target.value)}
-                  className="text-base"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="maxINR" className="text-xs text-gray-500 dark:text-gray-400">Maximum</Label>
-                <Input
-                  id="maxINR"
-                  type="number"
-                  step="0.1"
-                  min="0.5"
-                  max="5.0"
-                  value={maxINR}
-                  onChange={(e) => setMaxINR(e.target.value)}
-                  className="text-base"
-                />
-              </div>
+            <Label className="text-sm font-medium">Target INR</Label>
+            <div className="space-y-2">
+              <Input
+                id="targetINR"
+                type="number"
+                step="0.1"
+                min="1.0"
+                max="5.0"
+                value={inrTarget}
+                onChange={(e) => setInrTarget(e.target.value)}
+                className="text-base"
+                placeholder="2.5"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Your prescribed target INR value (e.g., 2.5, 3.0)
+              </p>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Common ranges: 2.0-3.0 (most conditions), 2.5-3.5 (mechanical valves)
-            </p>
           </div>
 
           <Button onClick={handleSave} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white">

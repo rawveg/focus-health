@@ -20,13 +20,12 @@ interface Reading {
 }
 
 interface Settings {
-  targetINRMin: number;
-  targetINRMax: number;
+  targetINR: number;
 }
 
 const Index = () => {
   const [readings, setReadings] = useState<Reading[]>([]);
-  const [settings, setSettings] = useState<Settings>({ targetINRMin: 2.0, targetINRMax: 3.0 });
+  const [settings, setSettings] = useState<Settings>({ targetINR: 2.5 });
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [inrValue, setInrValue] = useState("");
   const [systolic, setSystolic] = useState("");
@@ -104,13 +103,13 @@ const Index = () => {
   };
 
   const getINRStatus = (value: number) => {
-    const { targetINRMin, targetINRMax } = settings;
-    const criticalLow = targetINRMin - 0.5;
-    const criticalHigh = targetINRMax + 1.0;
+    const { targetINR } = settings;
+    const difference = Math.abs(value - targetINR);
     
-    if (value < criticalLow || value > criticalHigh) return "critical";
-    if (value < targetINRMin || value > targetINRMax) return "warning";
-    return "normal";
+    // Very tight tolerances based on your experience
+    if (difference <= 0.2) return "normal";      // Within ±0.2 of target
+    if (difference <= 0.4) return "warning";     // Within ±0.4 of target  
+    return "critical";                           // More than ±0.4 from target
   };
 
   const getBPStatus = (systolic: number, diastolic: number) => {
@@ -145,8 +144,18 @@ const Index = () => {
     });
   };
 
-  const handleTargetINRChange = (min: number, max: number) => {
-    setSettings(prev => ({ ...prev, targetINRMin: min, targetINRMax: max }));
+  const handleTargetINRChange = (target: number) => {
+    setSettings(prev => ({ ...prev, targetINR: target }));
+  };
+
+  const getINRStatusText = (value: number) => {
+    const status = getINRStatus(value);
+    const { targetINR } = settings;
+    const difference = value - targetINR;
+    
+    if (status === "normal") return "On Target";
+    if (difference > 0) return "High";
+    return "Low";
   };
 
   const latestINR = getLatestINR();
@@ -162,8 +171,7 @@ const Index = () => {
             <h1 className="text-lg font-semibold text-black dark:text-white">Health</h1>
             <div className="flex items-center space-x-2">
               <SettingsDialog 
-                targetINRMin={settings.targetINRMin}
-                targetINRMax={settings.targetINRMax}
+                targetINR={settings.targetINR}
                 onTargetINRChange={handleTargetINRChange}
               />
               <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
@@ -196,7 +204,7 @@ const Index = () => {
                           className="text-base"
                         />
                         <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Target range: {settings.targetINRMin} - {settings.targetINRMax}
+                          Target: {settings.targetINR}
                         </p>
                       </div>
                       <Button onClick={addINRReading} className="w-full bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white">
@@ -267,8 +275,7 @@ const Index = () => {
                   <span className="text-base font-medium text-black dark:text-white">INR</span>
                   {latestINR && (
                     <span className={`text-sm font-medium ${getStatusColor(getINRStatus(latestINR.value!))}`}>
-                      {getINRStatus(latestINR.value!) === "normal" ? "In Range" : 
-                       getINRStatus(latestINR.value!) === "warning" ? "Monitor" : "Critical"}
+                      {getINRStatusText(latestINR.value!)}
                     </span>
                   )}
                 </div>
@@ -277,7 +284,7 @@ const Index = () => {
                     <>
                       <span className="text-2xl font-light text-black dark:text-white">{latestINR.value}</span>
                       <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
-                        (Target: {settings.targetINRMin}-{settings.targetINRMax})
+                        (Target: {settings.targetINR})
                       </span>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{formatDate(latestINR.date)}</p>
                     </>
