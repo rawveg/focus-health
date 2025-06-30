@@ -210,10 +210,10 @@ const Index = () => {
   const sortedReadings = [...readings].sort((a, b) => b.timestamp - a.timestamp);
 
   const tabs = [
-    { id: "inr", label: "INR", icon: Activity },
-    { id: "bp", label: "Blood Pressure", icon: Heart },
-    { id: "stats", label: "Analytics", icon: BarChart3 },
-    { id: "readings", label: "All Readings", icon: List }
+    { id: "inr", label: "INR", shortLabel: "INR", icon: Activity },
+    { id: "bp", label: "Blood Pressure", shortLabel: "BP", icon: Heart },
+    { id: "stats", label: "Analytics", shortLabel: "Stats", icon: BarChart3 },
+    { id: "readings", label: "All Readings", shortLabel: "All", icon: List }
   ];
 
   // Analytics calculations
@@ -318,23 +318,26 @@ const Index = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="max-w-4xl mx-auto px-6 mb-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 mb-8">
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
-            <div className="flex space-x-1">
+            <div className="grid grid-cols-4 gap-1">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${
+                    className={`flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 px-2 sm:px-4 py-3 rounded-xl transition-all duration-200 ${
                       activeTab === tab.id
                         ? "bg-white text-slate-900 shadow-lg"
                         : "text-white/70 hover:text-white hover:bg-white/10"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
-                    <span className="text-sm font-medium">{tab.label}</span>
+                    <span className="text-xs sm:text-sm font-medium">
+                      <span className="sm:hidden">{tab.shortLabel}</span>
+                      <span className="hidden sm:inline">{tab.label}</span>
+                    </span>
                   </button>
                 );
               })}
