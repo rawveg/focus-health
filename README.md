@@ -1,9 +1,27 @@
+<div align="center">
+
 # Focus Health 🩺
 
-A modern, intuitive health tracking application for monitoring INR (International Normalized Ratio) and blood pressure readings. Built with React, TypeScript, and Tailwind CSS, featuring a beautiful gradient interface inspired by Apple's design principles.
+**A modern, intuitive health tracking application for monitoring INR (International Normalized Ratio) and blood pressure readings.**
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.11-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Live Demo](https://img.shields.io/badge/Demo-Live-green.svg)](https://focushealth.rawveg.co.uk)
+
+
+[🚀 Live Demo](https://focushealth.rawveg.co.uk) • [📖 Documentation](#features) • [🐛 Report Bug](https://github.com/rawveg/focus-health/issues) • [💡 Request Feature](https://github.com/rawveg/focus-health/issues)
+
+---
+
+*Built with React, TypeScript, and Tailwind CSS, featuring a beautiful gradient interface inspired by Apple's design principles.*
+
+</div>
+
+
+![](focus_health_screenshot.png)
+
 
 ## 🌟 Features
 
@@ -228,7 +246,7 @@ See the [LICENSE](LICENSE) file for full details.
 
 ## 🙏 Acknowledgments
 
-- **Design Inspiration**: Apple's Focus app and Human Interface Guidelines
+- **Design Inspiration**: Tim Green's Focus app and Apple's Human Interface Guidelines
 - **Medical Guidance**: Anticoagulation therapy best practices
 - **Component Library**: shadcn/ui for beautiful, accessible components
 - **Icons**: Lucide React for consistent iconography
