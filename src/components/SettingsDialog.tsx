@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Settings, Moon, Sun, Monitor } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 import { showSuccess } from "@/utils/toast";
@@ -42,11 +43,18 @@ const SettingsDialog = ({ targetINR, onTargetINRChange }: SettingsDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10">
-          <Settings className="w-4 h-4" />
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-white/80 hover:text-white hover:bg-white/10">
+              <Settings className="w-4 h-4" />
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Open settings</p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-white">Settings</DialogTitle>

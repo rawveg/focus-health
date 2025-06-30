@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SettingsDialog from "@/components/SettingsDialog";
 import StatCard from "@/components/StatCard";
 import ReadingItem from "@/components/ReadingItem";
@@ -277,427 +278,442 @@ const Index = () => {
   const bpAnalytics = getBPAnalytics();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex flex-col">
-      {/* Header */}
-      <div className="pt-12 pb-8">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="flex items-center justify-end mb-8">
-            <div className="flex items-center space-x-3">
-              <ExportDialog readings={readings} settings={settings} />
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-white/80 hover:text-white hover:bg-white/10"
-                onClick={() => window.open('https://github.com/rawveg/focus-health', '_blank')}
-              >
-                <Github className="w-4 h-4" />
-              </Button>
-              <SettingsDialog 
-                targetINR={settings.targetINR}
-                onTargetINRChange={handleTargetINRChange}
+    <TooltipProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex flex-col">
+        {/* Header */}
+        <div className="pt-12 pb-8">
+          <div className="max-w-4xl mx-auto px-6">
+            <div className="flex items-center justify-end mb-8">
+              <div className="flex items-center space-x-3">
+                <ExportDialog readings={readings} settings={settings} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-white/80 hover:text-white hover:bg-white/10"
+                      onClick={() => window.open('https://github.com/rawveg/focus-health', '_blank')}
+                    >
+                      <Github className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View source code on GitHub</p>
+                  </TooltipContent>
+                </Tooltip>
+                <SettingsDialog 
+                  targetINR={settings.targetINR}
+                  onTargetINRChange={handleTargetINRChange}
+                />
+              </div>
+            </div>
+
+            <div className="text-center mb-12">
+              <h1 className="text-5xl font-light text-white mb-4">Focus Health</h1>
+              <p className="text-white/70 text-lg max-w-2xl mx-auto">
+                Track your INR and blood pressure readings. Monitor your health with precision and stay on target.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="max-w-4xl mx-auto px-6 mb-8">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
+            <div className="flex space-x-1">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <Tooltip key={tab.id}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${
+                          activeTab === tab.id
+                            ? "bg-white text-slate-900 shadow-lg"
+                            : "text-white/70 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="text-sm font-medium">{tab.label}</span>
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Switch to {tab.label} tab</p>
+                    </TooltipContent>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        <div className="max-w-6xl mx-auto px-6 pb-20 flex-1">
+          {/* INR Tab */}
+          {activeTab === "inr" && (
+            <div className="space-y-8">
+              <StatCard
+                title="Current INR"
+                value={latestINR?.value || ""}
+                subtitle={latestINR ? `Recorded ${formatDate(latestINR.date)} at ${formatTime(latestINR.date)}` : `Target: ${settings.targetINR}`}
+                status={latestINR ? getINRStatusText(latestINR.value!) : undefined}
+                statusColor={latestINR ? getStatusColor(getINRStatus(latestINR.value!)) : undefined}
+                icon={<Activity className="w-5 h-5 text-blue-400" />}
+                isEmpty={!latestINR}
+                emptyTitle="No INR readings yet"
+                emptySubtitle="Add your first INR reading below"
               />
-            </div>
-          </div>
 
-          <div className="text-center mb-12">
-            <h1 className="text-5xl font-light text-white mb-4">Focus Health</h1>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto">
-              Track your INR and blood pressure readings. Monitor your health with precision and stay on target.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="max-w-4xl mx-auto px-6 mb-8">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
-          <div className="flex space-x-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-xl transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? "bg-white text-slate-900 shadow-lg"
-                      : "text-white/70 hover:text-white hover:bg-white/10"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Tab Content */}
-      <div className="max-w-6xl mx-auto px-6 pb-20 flex-1">
-        {/* INR Tab */}
-        {activeTab === "inr" && (
-          <div className="space-y-8">
-            <StatCard
-              title="Current INR"
-              value={latestINR?.value || ""}
-              subtitle={latestINR ? `Recorded ${formatDate(latestINR.date)} at ${formatTime(latestINR.date)}` : `Target: ${settings.targetINR}`}
-              status={latestINR ? getINRStatusText(latestINR.value!) : undefined}
-              statusColor={latestINR ? getStatusColor(getINRStatus(latestINR.value!)) : undefined}
-              icon={<Activity className="w-5 h-5 text-blue-400" />}
-              isEmpty={!latestINR}
-              emptyTitle="No INR readings yet"
-              emptySubtitle="Add your first INR reading below"
-            />
-
-            <div className="text-center">
-              <Dialog open={showINRDialog} onOpenChange={setShowINRDialog}>
-                <DialogTrigger asChild>
-                  <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add INR Reading
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
-                  <DialogHeader>
-                    <DialogTitle className="text-white text-lg font-semibold">Add INR Reading</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 mt-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="inr" className="text-sm font-medium text-white">INR Value</Label>
-                      <Input
-                        id="inr"
-                        type="number"
-                        step="0.1"
-                        placeholder="2.5"
-                        value={inrValue}
-                        onChange={(e) => setInrValue(e.target.value)}
-                        className="text-base bg-slate-700 border-slate-600 text-white"
-                      />
-                      <p className="text-xs text-slate-400">
-                        Target: {settings.targetINR}
-                      </p>
-                    </div>
-                    <Button onClick={addINRReading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                      Add Reading
+              <div className="text-center">
+                <Dialog open={showINRDialog} onOpenChange={setShowINRDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add INR Reading
                     </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            {/* Recent INR Readings */}
-            {inrReadings.length > 0 && (
-              <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
-                <div className="p-6 border-b border-white/10">
-                  <h3 className="text-white text-xl font-medium">Recent INR Readings</h3>
-                </div>
-                <div className="divide-y divide-white/10">
-                  {inrReadings.slice(0, 10).map((reading) => (
-                    <ReadingItem
-                      key={reading.id}
-                      type={reading.type}
-                      value={reading.value!.toString()}
-                      status={getINRStatusText(reading.value!)}
-                      statusColor={getStatusColor(getINRStatus(reading.value!))}
-                      date={formatDate(reading.date)}
-                      time={formatTime(reading.date)}
-                      onClick={() => handleReadingClick(reading)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Blood Pressure Tab */}
-        {activeTab === "bp" && (
-          <div className="space-y-8">
-            <StatCard
-              title="Current Blood Pressure"
-              value={latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : ""}
-              subtitle={latestBP ? `mmHg • Recorded ${formatDate(latestBP.date)} at ${formatTime(latestBP.date)}${latestBP.pulse ? ` • ♥ ${latestBP.pulse} bpm` : ""}` : undefined}
-              status={latestBP ? getBPStatusText(latestBP.systolic!, latestBP.diastolic!) : undefined}
-              statusColor={latestBP ? getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!)) : undefined}
-              icon={<Heart className="w-5 h-5 text-red-400" />}
-              isEmpty={!latestBP}
-              emptyTitle="No BP readings yet"
-              emptySubtitle="Add your first blood pressure reading below"
-            />
-
-            <div className="text-center">
-              <Dialog open={showBPDialog} onOpenChange={setShowBPDialog}>
-                <DialogTrigger asChild>
-                  <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add BP Reading
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
-                  <DialogHeader>
-                    <DialogTitle className="text-white text-lg font-semibold">Add Blood Pressure Reading</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 mt-6">
-                    <div className="grid grid-cols-2 gap-4">
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
+                    <DialogHeader>
+                      <DialogTitle className="text-white text-lg font-semibold">Add INR Reading</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-6">
                       <div className="space-y-2">
-                        <Label htmlFor="systolic" className="text-sm font-medium text-white">Systolic</Label>
+                        <Label htmlFor="inr" className="text-sm font-medium text-white">INR Value</Label>
                         <Input
-                          id="systolic"
+                          id="inr"
                           type="number"
-                          placeholder="120"
-                          value={systolic}
-                          onChange={(e) => setSystolic(e.target.value)}
+                          step="0.1"
+                          placeholder="2.5"
+                          value={inrValue}
+                          onChange={(e) => setInrValue(e.target.value)}
+                          className="text-base bg-slate-700 border-slate-600 text-white"
+                        />
+                        <p className="text-xs text-slate-400">
+                          Target: {settings.targetINR}
+                        </p>
+                      </div>
+                      <Button onClick={addINRReading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        Add Reading
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {/* Recent INR Readings */}
+              {inrReadings.length > 0 && (
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
+                  <div className="p-6 border-b border-white/10">
+                    <h3 className="text-white text-xl font-medium">Recent INR Readings</h3>
+                  </div>
+                  <div className="divide-y divide-white/10">
+                    {inrReadings.slice(0, 10).map((reading) => (
+                      <ReadingItem
+                        key={reading.id}
+                        type={reading.type}
+                        value={reading.value!.toString()}
+                        status={getINRStatusText(reading.value!)}
+                        statusColor={getStatusColor(getINRStatus(reading.value!))}
+                        date={formatDate(reading.date)}
+                        time={formatTime(reading.date)}
+                        onClick={() => handleReadingClick(reading)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Blood Pressure Tab */}
+          {activeTab === "bp" && (
+            <div className="space-y-8">
+              <StatCard
+                title="Current Blood Pressure"
+                value={latestBP ? `${latestBP.systolic}/${latestBP.diastolic}` : ""}
+                subtitle={latestBP ? `mmHg • Recorded ${formatDate(latestBP.date)} at ${formatTime(latestBP.date)}${latestBP.pulse ? ` • ♥ ${latestBP.pulse} bpm` : ""}` : undefined}
+                status={latestBP ? getBPStatusText(latestBP.systolic!, latestBP.diastolic!) : undefined}
+                statusColor={latestBP ? getStatusColor(getBPStatus(latestBP.systolic!, latestBP.diastolic!)) : undefined}
+                icon={<Heart className="w-5 h-5 text-red-400" />}
+                isEmpty={!latestBP}
+                emptyTitle="No BP readings yet"
+                emptySubtitle="Add your first blood pressure reading below"
+              />
+
+              <div className="text-center">
+                <Dialog open={showBPDialog} onOpenChange={setShowBPDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add BP Reading
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md bg-slate-800 border-slate-700">
+                    <DialogHeader>
+                      <DialogTitle className="text-white text-lg font-semibold">Add Blood Pressure Reading</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 mt-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="systolic" className="text-sm font-medium text-white">Systolic</Label>
+                          <Input
+                            id="systolic"
+                            type="number"
+                            placeholder="120"
+                            value={systolic}
+                            onChange={(e) => setSystolic(e.target.value)}
+                            className="text-base bg-slate-700 border-slate-600 text-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="diastolic" className="text-sm font-medium text-white">Diastolic</Label>
+                          <Input
+                            id="diastolic"
+                            type="number"
+                            placeholder="80"
+                            value={diastolic}
+                            onChange={(e) => setDiastolic(e.target.value)}
+                            className="text-base bg-slate-700 border-slate-600 text-white"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="pulse" className="text-sm font-medium text-white">Pulse (optional)</Label>
+                        <Input
+                          id="pulse"
+                          type="number"
+                          placeholder="72"
+                          value={pulse}
+                          onChange={(e) => setPulse(e.target.value)}
                           className="text-base bg-slate-700 border-slate-600 text-white"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="diastolic" className="text-sm font-medium text-white">Diastolic</Label>
-                        <Input
-                          id="diastolic"
-                          type="number"
-                          placeholder="80"
-                          value={diastolic}
-                          onChange={(e) => setDiastolic(e.target.value)}
-                          className="text-base bg-slate-700 border-slate-600 text-white"
-                        />
+                      <Button onClick={addBPReading} className="w-full bg-red-600 hover:bg-red-700 text-white">
+                        Add Reading
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {/* Recent BP Readings */}
+              {bpReadings.length > 0 && (
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
+                  <div className="p-6 border-b border-white/10">
+                    <h3 className="text-white text-xl font-medium">Recent Blood Pressure Readings</h3>
+                  </div>
+                  <div className="divide-y divide-white/10">
+                    {bpReadings.slice(0, 10).map((reading) => (
+                      <ReadingItem
+                        key={reading.id}
+                        type={reading.type}
+                        value={`${reading.systolic}/${reading.diastolic}`}
+                        status={getBPStatusText(reading.systolic!, reading.diastolic!)}
+                        statusColor={getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
+                        date={formatDate(reading.date)}
+                        time={formatTime(reading.date)}
+                        pulse={reading.pulse}
+                        onClick={() => handleReadingClick(reading)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Analytics Tab */}
+          {activeTab === "stats" && (
+            <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* INR Analytics */}
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 p-6">
+                  <h3 className="text-white text-xl font-medium mb-6 flex items-center space-x-2">
+                    <Activity className="w-5 h-5 text-blue-400" />
+                    <span>INR Analytics</span>
+                  </h3>
+                  
+                  {inrAnalytics ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="bg-slate-700/50 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-green-400">{inrAnalytics.inRangePercent}%</div>
+                          <div className="text-xs text-white/60">In Target Range</div>
+                          <div className="text-xs text-white/40">{inrAnalytics.inRange}/{inrAnalytics.total} readings</div>
+                        </div>
+                        <div className="bg-slate-700/50 rounded-xl p-4 text-center">
+                          <div className="text-2xl font-bold text-blue-400">{inrAnalytics.recentInRangePercent}%</div>
+                          <div className="text-xs text-white/60">Last 30 Days</div>
+                          <div className="text-xs text-white/40">{inrAnalytics.last30Days} readings</div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <div className="text-lg font-semibold text-white">{inrAnalytics.average}</div>
+                          <div className="text-xs text-white/60">Average</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold text-white">{inrAnalytics.min}</div>
+                          <div className="text-xs text-white/60">Minimum</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold text-white">{inrAnalytics.max}</div>
+                          <div className="text-xs text-white/60">Maximum</div>
+                        </div>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="pulse" className="text-sm font-medium text-white">Pulse (optional)</Label>
-                      <Input
-                        id="pulse"
-                        type="number"
-                        placeholder="72"
-                        value={pulse}
-                        onChange={(e) => setPulse(e.target.value)}
-                        className="text-base bg-slate-700 border-slate-600 text-white"
-                      />
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-white/60">No INR data available</p>
+                      <p className="text-white/40 text-sm mt-1">Add some INR readings to see analytics</p>
                     </div>
-                    <Button onClick={addBPReading} className="w-full bg-red-600 hover:bg-red-700 text-white">
-                      Add Reading
+                  )}
+                </div>
+
+                {/* BP Analytics */}
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 p-6">
+                  <h3 className="text-white text-xl font-medium mb-6 flex items-center space-x-2">
+                    <Heart className="w-5 h-5 text-red-400" />
+                    <span>BP Analytics</span>
+                  </h3>
+                  
+                  {bpAnalytics ? (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-green-500/20 rounded-xl p-3 text-center">
+                          <div className="text-lg font-bold text-green-400">{bpAnalytics.normal}</div>
+                          <div className="text-xs text-white/60">Normal</div>
+                        </div>
+                        <div className="bg-yellow-500/20 rounded-xl p-3 text-center">
+                          <div className="text-lg font-bold text-yellow-400">{bpAnalytics.elevated}</div>
+                          <div className="text-xs text-white/60">Elevated</div>
+                        </div>
+                        <div className="bg-orange-500/20 rounded-xl p-3 text-center">
+                          <div className="text-lg font-bold text-orange-400">{bpAnalytics.high}</div>
+                          <div className="text-xs text-white/60">Contact Doctor</div>
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-700/50 rounded-xl p-4 text-center">
+                        <div className="text-2xl font-bold text-white">{bpAnalytics.normalPercent}%</div>
+                        <div className="text-xs text-white/60">Normal Blood Pressure</div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                          <div className="text-lg font-semibold text-white">{bpAnalytics.avgSystolic}</div>
+                          <div className="text-xs text-white/60">Avg Systolic</div>
+                        </div>
+                        <div>
+                          <div className="text-lg font-semibold text-white">{bpAnalytics.avgDiastolic}</div>
+                          <div className="text-xs text-white/60">Avg Diastolic</div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-white/60">No BP data available</p>
+                      <p className="text-white/40 text-sm mt-1">Add some BP readings to see analytics</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* All Readings Tab */}
+          {activeTab === "readings" && (
+            <div className="space-y-8">
+              {sortedReadings.length > 0 ? (
+                <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
+                  <div className="p-6 border-b border-white/10">
+                    <h3 className="text-white text-xl font-medium">All Readings ({sortedReadings.length})</h3>
+                  </div>
+                  <div className="divide-y divide-white/10">
+                    {sortedReadings.map((reading) => (
+                      <ReadingItem
+                        key={reading.id}
+                        type={reading.type}
+                        value={reading.type === "inr" ? reading.value!.toString() : `${reading.systolic}/${reading.diastolic}`}
+                        status={reading.type === "inr" ? getINRStatusText(reading.value!) : getBPStatusText(reading.systolic!, reading.diastolic!)}
+                        statusColor={reading.type === "inr" ? getStatusColor(getINRStatus(reading.value!)) : 
+                                    getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
+                        date={formatDate(reading.date)}
+                        time={formatTime(reading.date)}
+                        pulse={reading.pulse}
+                        onClick={() => handleReadingClick(reading)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <div className="text-white/40 text-xl mb-4">No readings yet</div>
+                  <div className="text-white/30 text-sm mb-8">Start by adding your first reading in the INR or Blood Pressure tabs</div>
+                  <div className="flex justify-center space-x-4">
+                    <Button 
+                      onClick={() => setActiveTab("inr")}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Add INR Reading
+                    </Button>
+                    <Button 
+                      onClick={() => setActiveTab("bp")}
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                    >
+                      Add BP Reading
                     </Button>
                   </div>
-                </DialogContent>
-              </Dialog>
+                </div>
+              )}
             </div>
-
-            {/* Recent BP Readings */}
-            {bpReadings.length > 0 && (
-              <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
-                <div className="p-6 border-b border-white/10">
-                  <h3 className="text-white text-xl font-medium">Recent Blood Pressure Readings</h3>
-                </div>
-                <div className="divide-y divide-white/10">
-                  {bpReadings.slice(0, 10).map((reading) => (
-                    <ReadingItem
-                      key={reading.id}
-                      type={reading.type}
-                      value={`${reading.systolic}/${reading.diastolic}`}
-                      status={getBPStatusText(reading.systolic!, reading.diastolic!)}
-                      statusColor={getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
-                      date={formatDate(reading.date)}
-                      time={formatTime(reading.date)}
-                      pulse={reading.pulse}
-                      onClick={() => handleReadingClick(reading)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Analytics Tab */}
-        {activeTab === "stats" && (
-          <div className="space-y-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* INR Analytics */}
-              <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 p-6">
-                <h3 className="text-white text-xl font-medium mb-6 flex items-center space-x-2">
-                  <Activity className="w-5 h-5 text-blue-400" />
-                  <span>INR Analytics</span>
-                </h3>
-                
-                {inrAnalytics ? (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-slate-700/50 rounded-xl p-4 text-center">
-                        <div className="text-2xl font-bold text-green-400">{inrAnalytics.inRangePercent}%</div>
-                        <div className="text-xs text-white/60">In Target Range</div>
-                        <div className="text-xs text-white/40">{inrAnalytics.inRange}/{inrAnalytics.total} readings</div>
-                      </div>
-                      <div className="bg-slate-700/50 rounded-xl p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-400">{inrAnalytics.recentInRangePercent}%</div>
-                        <div className="text-xs text-white/60">Last 30 Days</div>
-                        <div className="text-xs text-white/40">{inrAnalytics.last30Days} readings</div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <div className="text-lg font-semibold text-white">{inrAnalytics.average}</div>
-                        <div className="text-xs text-white/60">Average</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold text-white">{inrAnalytics.min}</div>
-                        <div className="text-xs text-white/60">Minimum</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold text-white">{inrAnalytics.max}</div>
-                        <div className="text-xs text-white/60">Maximum</div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-white/60">No INR data available</p>
-                    <p className="text-white/40 text-sm mt-1">Add some INR readings to see analytics</p>
-                  </div>
-                )}
-              </div>
-
-              {/* BP Analytics */}
-              <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 p-6">
-                <h3 className="text-white text-xl font-medium mb-6 flex items-center space-x-2">
-                  <Heart className="w-5 h-5 text-red-400" />
-                  <span>BP Analytics</span>
-                </h3>
-                
-                {bpAnalytics ? (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="bg-green-500/20 rounded-xl p-3 text-center">
-                        <div className="text-lg font-bold text-green-400">{bpAnalytics.normal}</div>
-                        <div className="text-xs text-white/60">Normal</div>
-                      </div>
-                      <div className="bg-yellow-500/20 rounded-xl p-3 text-center">
-                        <div className="text-lg font-bold text-yellow-400">{bpAnalytics.elevated}</div>
-                        <div className="text-xs text-white/60">Elevated</div>
-                      </div>
-                      <div className="bg-orange-500/20 rounded-xl p-3 text-center">
-                        <div className="text-lg font-bold text-orange-400">{bpAnalytics.high}</div>
-                        <div className="text-xs text-white/60">Contact Doctor</div>
-                      </div>
-                    </div>
-
-                    <div className="bg-slate-700/50 rounded-xl p-4 text-center">
-                      <div className="text-2xl font-bold text-white">{bpAnalytics.normalPercent}%</div>
-                      <div className="text-xs text-white/60">Normal Blood Pressure</div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4 text-center">
-                      <div>
-                        <div className="text-lg font-semibold text-white">{bpAnalytics.avgSystolic}</div>
-                        <div className="text-xs text-white/60">Avg Systolic</div>
-                      </div>
-                      <div>
-                        <div className="text-lg font-semibold text-white">{bpAnalytics.avgDiastolic}</div>
-                        <div className="text-xs text-white/60">Avg Diastolic</div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-white/60">No BP data available</p>
-                    <p className="text-white/40 text-sm mt-1">Add some BP readings to see analytics</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* All Readings Tab */}
-        {activeTab === "readings" && (
-          <div className="space-y-8">
-            {sortedReadings.length > 0 ? (
-              <div className="bg-slate-800/30 backdrop-blur-sm rounded-3xl border border-white/10 overflow-hidden">
-                <div className="p-6 border-b border-white/10">
-                  <h3 className="text-white text-xl font-medium">All Readings ({sortedReadings.length})</h3>
-                </div>
-                <div className="divide-y divide-white/10">
-                  {sortedReadings.map((reading) => (
-                    <ReadingItem
-                      key={reading.id}
-                      type={reading.type}
-                      value={reading.type === "inr" ? reading.value!.toString() : `${reading.systolic}/${reading.diastolic}`}
-                      status={reading.type === "inr" ? getINRStatusText(reading.value!) : getBPStatusText(reading.systolic!, reading.diastolic!)}
-                      statusColor={reading.type === "inr" ? getStatusColor(getINRStatus(reading.value!)) : 
-                                  getStatusColor(getBPStatus(reading.systolic!, reading.diastolic!))}
-                      date={formatDate(reading.date)}
-                      time={formatTime(reading.date)}
-                      pulse={reading.pulse}
-                      onClick={() => handleReadingClick(reading)}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-16">
-                <div className="text-white/40 text-xl mb-4">No readings yet</div>
-                <div className="text-white/30 text-sm mb-8">Start by adding your first reading in the INR or Blood Pressure tabs</div>
-                <div className="flex justify-center space-x-4">
-                  <Button 
-                    onClick={() => setActiveTab("inr")}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Add INR Reading
-                  </Button>
-                  <Button 
-                    onClick={() => setActiveTab("bp")}
-                    className="bg-red-600 hover:bg-red-700 text-white"
-                  >
-                    Add BP Reading
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-slate-900/50 backdrop-blur-sm border-t border-white/10 py-8 mt-auto">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="text-white/60 text-sm mb-2">
-            <a 
-              href="https://www.gnu.org/licenses/agpl-3.0.en.html" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover:text-white/80 transition-colors"
-            >
-              Licensed under the GNU Affero General Public License v3.0
-            </a>
-            <span className="mx-2">•</span>
-            <a 
-              href="https://github.com/rawveg/focus-health/blob/main/LICENSE" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="hover:text-white/80 transition-colors"
-            >
-              View License
-            </a>
-          </div>
-          <div className="text-white/40 text-sm">
-            © 2025 Tim Green. All rights reserved.
-          </div>
+          )}
         </div>
-      </footer>
 
-      {/* Reading Detail Dialog */}
-      <ReadingDetailDialog
-        reading={selectedReading}
-        open={showDetailDialog}
-        onClose={() => {
-          setShowDetailDialog(false);
-          setSelectedReading(null);
-        }}
-        onUpdate={updateReading}
-        onDelete={deleteReading}
-        settings={settings}
-      />
-    </div>
+        {/* Footer */}
+        <footer className="bg-slate-900/50 backdrop-blur-sm border-t border-white/10 py-8 mt-auto">
+          <div className="max-w-4xl mx-auto px-6 text-center">
+            <div className="text-white/60 text-sm mb-2">
+              <a 
+                href="https://www.gnu.org/licenses/agpl-3.0.en.html" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-white/80 transition-colors"
+              >
+                Licensed under the GNU Affero General Public License v3.0
+              </a>
+              <span className="mx-2">•</span>
+              <a 
+                href="https://github.com/rawveg/focus-health/blob/main/LICENSE" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="hover:text-white/80 transition-colors"
+              >
+                View License
+              </a>
+            </div>
+            <div className="text-white/40 text-sm">
+              © 2025 Tim Green. All rights reserved.
+            </div>
+          </div>
+        </footer>
+
+        {/* Reading Detail Dialog */}
+        <ReadingDetailDialog
+          reading={selectedReading}
+          open={showDetailDialog}
+          onClose={() => {
+            setShowDetailDialog(false);
+            setSelectedReading(null);
+          }}
+          onUpdate={updateReading}
+          onDelete={deleteReading}
+          settings={settings}
+        />
+      </div>
+    </TooltipProvider>
   );
 };
 
